@@ -1,0 +1,98 @@
+#
+# Copyright (C) 2024 nosignals
+#
+name: Building luci-theme-argon2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'luci-theme-argon2/Makefile'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Neko version'
+        required: true
+        default: ''
+        type: string
+      changelog:
+        description: 'Changelog'
+        required: true
+        default: ''
+        type: string
+       
+    
+jobs: 
+  build_ipk:
+    permissions:
+      contents: write
+    name: Build Neko
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        release:
+          - 23.05.4
+        arch:
+          - x86_64
+          
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref_name }}
+
+      
+      - name: Preparing Neko
+        run: |
+              echo ""
+              git clone https://github.com/Houjie80/argon2
+              mkdir feeds artifacts
+              cp -rf ./luci-theme-argon2 ./feeds
+        
+      - name: Building luci-theme-argon2
+        uses: nosignals/gh-action-sdk@main
+        env:
+          ARCH: ${{ matrix.arch }}-${{ matrix.release }}
+          ARTIFACTS_DIR: ${{ github.workspace }}/artifacts
+          FEED_DIR: ${{ github.workspace }}/feeds
+          PACKAGES: luci-theme-argon2
+          NO_SHFMT_CHECK: 1
+        
+      - name: Delivering Package
+        uses: actions/upload-artifact@v3
+        with:
+          name: neko-${{ matrix.release }}_${{ matrix.arch }}
+          path: ${{ github.workspace }}/artifacts/bin/packages/${{ matrix.arch }}/action/luci-theme*
+
+  push_packages:
+    needs: build_ipk
+    name: Push Packages to Release
+    permissions:
+      contents: write  # To push a branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download temporary artifact
+        uses: actions/download-artifact@v3
+        
+      - name: Moving artifact to releases
+        shell: bash
+        run: |
+          mkdir ./artifact
+          cp -rf ./neko-23.05.4_x86_64/* ./artifact/luci-theme-argon2_${{ inputs.version }}_dev_all.ipk
+        
+      - name: Upload release asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./artifact/*
+          overwrite: true
+          prerelease: false
+          tag: dev
+          file_glob: true
+          body: |
+            # luci-theme-argon2
+            ### Information
+            - Changelog : 
+              - ${{ inputs.changelog }}
