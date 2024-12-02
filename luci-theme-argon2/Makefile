@@ -8,9 +8,9 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=LuCI support for theme
 LUCI_PKGARCH:=all
 
-PKG_NAME:=luci-theme-argon2
+PKG_NAME:=luci-theme-argon
 PKG_MAINTAINER:=anakdeso <@gmail.com>
-PKG_VERSION:=2.5
+PKG_VERSION:=2.3.4
 PKG_RELEASE:=beta
 PKG_LICENSE:=Apache-2.0
 PKG_ARCH:=all
