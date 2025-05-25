@@ -1,4 +1,4 @@
-name: build Pac tester
+name: build Pac tester2
 
 on:
   workflow_dispatch:
