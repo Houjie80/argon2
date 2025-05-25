@@ -1,19 +1,15 @@
-# Copyright (C) 2016 Openwrt.org
-#
-# This is free software, licensed under the Apache License, Version 2.0 .
-#
+# Description: houjie-WRT Theme for LuCI
+# Author: houjie80
+# License: GPL-3.0
 
 include $(TOPDIR)/rules.mk
 
-LUCI_TITLE:=LuCI support for theme
-LUCI_PKGARCH:=all
+LUCI_TITLE:=HJ-WRT Theme
+LUCI_DEPENDS:=+curl +jsonfilter
+PKG_VERSION:=3.0.1
+PKG_RELEASE:=07032025
 
-PKG_NAME:=luci-theme-argon
-PKG_MAINTAINER:=anakdeso <@gmail.com>
-PKG_VERSION:=2.3.4
-PKG_RELEASE:=beta
-PKG_LICENSE:=Apache-2.0
-PKG_ARCH:=all
+CONFIG_LUCI_CSSTIDY:=
 
 include $(TOPDIR)/feeds/luci/luci.mk
 
