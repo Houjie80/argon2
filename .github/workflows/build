@@ -103,35 +103,35 @@ jobs:
         uses: openwrt/gh-action-sdk@main
         env:
           ARCH: ${{ matrix.arch }}-${{ matrix.branch }}
-          ARTIFACTS_DIR: ${{ github.workspace }}/artifacts
-          FEED_DIR: ${{ github.workspace }}/feeds
+          ARTIFACTS_DIR: ${{ github.workspace }}/${{ inputs.letak }}/artifacts
+          FEED_DIR: ${{ github.workspace }}/${{ inputs.letak }}/feeds
           PACKAGES: ${{ env.PACKAGE_NAME }}
           NO_REFRESH_CHECK: true
 
       - name: List built packages
         run: |
-          find ${{ github.workspace }}/artifacts -type f -name "${{ env.PACKAGE_NAME }}*.ipk" -o -name "${{ env.PACKAGE_NAME }}*.apk" | sort
+          find ${{ github.workspace }}/${{ inputs.letak }}/artifacts -type f -name "${{ env.PACKAGE_NAME }}*.ipk" -o -name "${{ env.PACKAGE_NAME }}*.apk" | sort
           echo "::endgroup::"
 
       - name: Prepare release artifacts
         run: |
           # Create release artifacts directory
-          mkdir -p ${{ github.workspace }}/release-artifacts
+          mkdir -p ${{ github.workspace }}/${{ inputs.letak }}/release-artifacts
 
           # Handle different file extensions based on branch
           if [[ "${{ matrix.branch }}" == "SNAPSHOT" ]]; then
             # For SNAPSHOT branch - copy APK files
-            find ${{ github.workspace }}/artifacts/bin/packages -name "${{ env.PACKAGE_NAME }}*.apk" -exec cp {} ${{ github.workspace }}/release-artifacts/ \; || true
-            find ${{ github.workspace }}/artifacts/bin/targets -name "${{ env.PACKAGE_NAME }}*.apk" -exec cp {} ${{ github.workspace }}/release-artifacts/ \; || true
+            find ${{ github.workspace }}/${{ inputs.letak }}/artifacts/bin/packages -name "${{ env.PACKAGE_NAME }}*.apk" -exec cp {} ${{ github.workspace }}/release-artifacts/ \; || true
+            find ${{ github.workspace }}/${{ inputs.letak }}/artifacts/bin/targets -name "${{ env.PACKAGE_NAME }}*.apk" -exec cp {} ${{ github.workspace }}/release-artifacts/ \; || true
           else
             # For other branches - copy IPK files
-            find ${{ github.workspace }}/artifacts/bin/packages -name "${{ env.PACKAGE_NAME }}*.ipk" -exec cp {} ${{ github.workspace }}/release-artifacts/ \; || true
-            find ${{ github.workspace }}/artifacts/bin/targets -name "${{ env.PACKAGE_NAME }}*.ipk" -exec cp {} ${{ github.workspace }}/release-artifacts/ \; || true
+            find ${{ github.workspace }} ${{ inputs.letak }}/artifacts/bin/packages -name "${{ env.PACKAGE_NAME }}*.ipk" -exec cp {} ${{ github.workspace }}/release-artifacts/ \; || true
+            find ${{ github.workspace }}/${{ inputs.letak }}/artifacts/bin/targets -name "${{ env.PACKAGE_NAME }}*.ipk" -exec cp {} ${{ github.workspace }}/release-artifacts/ \; || true
           fi
 
           # Debug: list contents
           echo "Contents of release-artifacts directory:"
-          ls -la ${{ github.workspace }}/release-artifacts/
+          ls -la ${{ github.workspace }}/${{ inputs.letak }}/release-artifacts/
 
 
       - name: Upload release artifacts
@@ -139,4 +139,4 @@ jobs:
         with:
           tag_name: "v${{ needs.get-version.outputs.version }}"
           files: |
-            ${{ github.workspace }}/release-artifacts/*
+            ${{ github.workspace }}/${{ inputs.letak }}/release-artifacts/*
